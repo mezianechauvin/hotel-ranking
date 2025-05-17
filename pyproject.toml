@@ -1,0 +1,33 @@
+[project]
+name = "hotel-ranking"
+version = "0.1.0"
+description = "Hotel amenity day-access ranking system"
+authors = [
+    {name = "Hotel Ranking Team", email = "team@example.com"}
+]
+dependencies = [
+    "numpy>=1.22.0",
+    "pandas>=1.4.0",
+    "scikit-learn>=1.0.0",
+    "xgboost>=1.5.0",
+    "matplotlib>=3.5.0",
+    "seaborn>=0.11.0",
+    "faker>=13.0.0",
+    "jupyter>=1.0.0",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "flake8>=4.0.0",
+]

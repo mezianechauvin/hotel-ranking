@@ -1,0 +1,30 @@
+I am given the following assignement:
+
+Background
+One of our key goals for 2025 is to improve the way we rank hotels on our search
+results page (SRP).
+Currently, we manually rank hotels based on various criteria we believe are important.
+For example, we prioritize top sellers at the top of the SRP, and every user searching
+within the same location sees the same ranking.
+Your Task
+We’d like you to develop a strategy to optimize our ranking system. As you work
+through this, consider the following questions:
+● Data: What data would be useful to evaluate and improve the ranking algorithm?
+We encourage you to generate dummy data based on what you think is valuable.
+● Modeling: What type of model or approach would you recommend for ranking
+the hotels? We encourage you to build a model based on this data to showcase
+how such a model would help solve this problem.
+● Success Metrics: What key performance indicators (KPIs) would you track to
+measure success? Would you conduct any experiments to validate the
+approach?
+● Challenges: What common pitfalls might arise from a data engineering or data
+science perspective?
+Deliverable
+Prepare a set of slides including your analysis addressing the questions above.
+
+I want your help in listing important data points, you can be exhaustive but more
+importantly I would like you to explain how you'd go about generating the dummy data.
+It's important that we start simple and don't include all possible data points but rather
+identify the most important data that would feed a baseline model.
+Can you please start listing potential data, and explain why you think that would be 
+important to gather for the recommendation model.
