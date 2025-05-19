@@ -7,6 +7,7 @@ including location, preferences, and behavior patterns.
 
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
 
 
 def generate_user_data(n_users=1000, cities=None, random_seed=None):
@@ -188,6 +189,23 @@ def preprocess_user_data(users_df):
         processed_df[f"prefers_{vibe}"] = processed_df["preferred_vibes"].apply(
             lambda x: 1 if vibe in x else 0
         )
+    
+    # One-hot encode categorical fields
+    # Income level
+    if "income_level" in processed_df.columns:
+        income_encoder = OneHotEncoder(sparse=False, drop='first')
+        income_encoded = income_encoder.fit_transform(processed_df[['income_level']])
+        income_cols = [f"income_level_{cat}" for cat in income_encoder.categories_[0][1:]]
+        income_df = pd.DataFrame(income_encoded, columns=income_cols)
+        processed_df = pd.concat([processed_df, income_df], axis=1)
+    
+    # Gender
+    if "gender" in processed_df.columns:
+        gender_encoder = OneHotEncoder(sparse=False, drop='first')
+        gender_encoded = gender_encoder.fit_transform(processed_df[['gender']])
+        gender_cols = [f"gender_{cat}" for cat in gender_encoder.categories_[0][1:]]
+        gender_df = pd.DataFrame(gender_encoded, columns=gender_cols)
+        processed_df = pd.concat([processed_df, gender_df], axis=1)
     
     # Drop complex columns
     processed_df = processed_df.drop(columns=["time_slot_probs", "preferred_amenities", "preferred_vibes"])

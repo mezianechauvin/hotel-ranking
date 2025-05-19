@@ -7,6 +7,7 @@ based on their characteristics and the season.
 
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
 
 
 def generate_seasonal_data(venues_df, random_seed=None):
@@ -186,7 +187,19 @@ def generate_seasonal_data(venues_df, random_seed=None):
             
             seasonal_data.append(seasonal_record)
     
-    return pd.DataFrame(seasonal_data)
+    # Create DataFrame from seasonal data list
+    seasonal_df = pd.DataFrame(seasonal_data)
+    
+    # One-hot encode season
+    season_encoder = OneHotEncoder(sparse=False, drop='first')
+    season_encoded = season_encoder.fit_transform(seasonal_df[['season']])
+    season_cols = [f"season_{cat}" for cat in season_encoder.categories_[0][1:]]
+    season_df = pd.DataFrame(season_encoded, columns=season_cols)
+    
+    # Concatenate encoded features with original DataFrame
+    seasonal_df = pd.concat([seasonal_df, season_df], axis=1)
+    
+    return seasonal_df
 
 
 def get_seasonal_availability_stats(seasonal_df):

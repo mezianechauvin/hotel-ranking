@@ -8,6 +8,7 @@ across a specified time period.
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
+from sklearn.preprocessing import OneHotEncoder
 
 
 def generate_weather_data(cities, start_date=None, end_date=None, random_seed=None):
@@ -134,7 +135,20 @@ def generate_weather_data(cities, start_date=None, end_date=None, random_seed=No
             
             weather_data.append(weather_record)
     
-    return pd.DataFrame(weather_data)
+    # Create DataFrame from weather data list
+    weather_df = pd.DataFrame(weather_data)
+    
+    # One-hot encode weather quality
+    if len(weather_df) > 0:
+        weather_quality_encoder = OneHotEncoder(sparse=False, drop='first')
+        weather_quality_encoded = weather_quality_encoder.fit_transform(weather_df[['weather_quality']])
+        weather_quality_cols = [f"weather_quality_{cat}" for cat in weather_quality_encoder.categories_[0][1:]]
+        weather_quality_df = pd.DataFrame(weather_quality_encoded, columns=weather_quality_cols)
+        
+        # Concatenate encoded features with original DataFrame
+        weather_df = pd.concat([weather_df, weather_quality_df], axis=1)
+    
+    return weather_df
 
 
 def get_season_from_date(date):

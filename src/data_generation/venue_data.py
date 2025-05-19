@@ -7,6 +7,7 @@ including location, amenities, and pricing.
 
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import OneHotEncoder
 
 
 def generate_venue_data(n_venues=500, random_seed=None):
@@ -233,7 +234,26 @@ def generate_venue_data(n_venues=500, random_seed=None):
             venues.append(venue)
             venue_id += 1
     
-    return pd.DataFrame(venues)
+    # Create DataFrame from venues list
+    venues_df = pd.DataFrame(venues)
+    
+    # One-hot encode categorical fields
+    # Venue type
+    venue_type_encoder = OneHotEncoder(sparse=False, drop='first')
+    venue_type_encoded = venue_type_encoder.fit_transform(venues_df[['venue_type']])
+    venue_type_cols = [f"venue_type_{cat}" for cat in venue_type_encoder.categories_[0][1:]]
+    venue_type_df = pd.DataFrame(venue_type_encoded, columns=venue_type_cols)
+    
+    # Vibe
+    vibe_encoder = OneHotEncoder(sparse=False, drop='first')
+    vibe_encoded = vibe_encoder.fit_transform(venues_df[['vibe']])
+    vibe_cols = [f"vibe_{cat}" for cat in vibe_encoder.categories_[0][1:]]
+    vibe_df = pd.DataFrame(vibe_encoded, columns=vibe_cols)
+    
+    # Concatenate encoded features with original DataFrame
+    venues_df = pd.concat([venues_df, venue_type_df, vibe_df], axis=1)
+    
+    return venues_df
 
 
 if __name__ == "__main__":

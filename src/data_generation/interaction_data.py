@@ -9,6 +9,7 @@ and contextual factors like weather and seasonality.
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
+from sklearn.preprocessing import OneHotEncoder
 
 from src.utils.distance import calculate_distance
 
@@ -352,7 +353,40 @@ def generate_interaction_data(venues_df, users_df, seasonal_df, weather_df=None,
         
         session_id += 1
     
-    return pd.DataFrame(interactions)
+    # Create DataFrame from interactions list
+    interactions_df = pd.DataFrame(interactions)
+    
+    # Create distance buckets
+    interactions_df["distance_bucket"] = pd.cut(
+        interactions_df["distance_km"],
+        bins=[0, 1, 2, 5, 10, 20, 50],
+        labels=["0-1km", "1-2km", "2-5km", "5-10km", "10-20km", "20-50km"]
+    )
+    
+    # Create booking hours buckets
+    interactions_df["booking_hours_bucket"] = pd.cut(
+        interactions_df["hours_until_booking"],
+        bins=[0, 2, 6, 12, 24, 48, 100],
+        labels=["0-2h", "2-6h", "6-12h", "12-24h", "24-48h", "48h+"]
+    )
+    
+    # One-hot encode categorical fields
+    categorical_cols = ["day_of_week", "time_slot", "weather_quality", "distance_bucket", "booking_hours_bucket"]
+    encoded_dfs = []
+    
+    for col in categorical_cols:
+        if col in interactions_df.columns:
+            encoder = OneHotEncoder(sparse=False, drop='first')
+            encoded = encoder.fit_transform(interactions_df[[col]])
+            encoded_cols = [f"{col}_{cat}" for cat in encoder.categories_[0][1:]]
+            encoded_df = pd.DataFrame(encoded, columns=encoded_cols)
+            encoded_dfs.append(encoded_df)
+    
+    # Concatenate all encoded features with original DataFrame
+    if encoded_dfs:
+        interactions_df = pd.concat([interactions_df] + encoded_dfs, axis=1)
+    
+    return interactions_df
 
 
 def get_interaction_stats(interactions_df):

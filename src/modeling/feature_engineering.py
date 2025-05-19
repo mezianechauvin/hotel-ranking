@@ -111,20 +111,10 @@ def prepare_features(interactions_df, venues_df, users_df, seasonal_df, weather_
     features_df["distance_score"] = 1 - features_df["distance_km"] / features_df["max_travel_distance"]
     features_df["distance_score"] = features_df["distance_score"].clip(0, 1)
     
-    # Create distance buckets
-    features_df["distance_bucket"] = pd.cut(
-        features_df["distance_km"],
-        bins=[0, 1, 2, 5, 10, 20, 50],
-        labels=["0-1km", "1-2km", "2-5km", "5-10km", "10-20km", "20-50km"]
-    )
-    
-    # Create time features
+    # Convert is_weekend to int if it's not already
     features_df["is_weekend"] = features_df["is_weekend"].astype(int)
-    features_df["booking_hours_bucket"] = pd.cut(
-        features_df["hours_until_booking"],
-        bins=[0, 2, 6, 12, 24, 48, 100],
-        labels=["0-2h", "2-6h", "6-12h", "12-24h", "24-48h", "48h+"]
-    )
+    
+    # Note: distance_bucket and booking_hours_bucket are now created during data generation
     
     # Create seasonal interaction features
     
@@ -169,19 +159,7 @@ def prepare_features(interactions_df, venues_df, users_df, seasonal_df, weather_
                 (features_df[vibe_pref_col] == 1)
             ).astype(int)
     
-    # One-hot encode categorical features
-    categorical_cols = [
-        "venue_type", "vibe", "season", "day_of_week", 
-        "time_slot", "weather_quality", "distance_bucket", 
-        "booking_hours_bucket"
-    ]
-    
-    # Check which categorical columns exist in the DataFrame
-    categorical_cols = [col for col in categorical_cols if col in features_df.columns]
-    
-    # One-hot encode
-    if categorical_cols:
-        features_df = pd.get_dummies(features_df, columns=categorical_cols)
+    # Note: Categorical features are now one-hot encoded during data generation
     
     # Fill missing values
     features_df = features_df.fillna(0)
@@ -238,7 +216,7 @@ def select_features(features_df, include_user_features=True):
                          any(col.startswith(f"{vibe}_match") 
                             for vibe in ["family_friendly", "serene", "luxe", "trendy"])]
     
-    # Add one-hot encoded categorical features
+    # Add one-hot encoded categorical features that were created during data generation
     categorical_features = [col for col in features_df.columns if 
                           any(col.startswith(f"{category}_") 
                              for category in ["venue_type", "vibe", "season", "day_of_week", 
