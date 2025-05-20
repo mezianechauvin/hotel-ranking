@@ -236,7 +236,7 @@ def predict_rankings(model, features_df, feature_cols=None):
     return results_df
 
 
-def save_model(model, feature_cols, model_dir="models"):
+def save_model(model, feature_cols, model_dir="models", model_name="ranking_model"):
     """
     Save the trained model and feature columns.
     
@@ -248,6 +248,8 @@ def save_model(model, feature_cols, model_dir="models"):
         List of feature column names
     model_dir : str, optional
         Directory to save the model
+    model_name : str, optional
+        Base name for the model file (without extension)
         
     Returns:
     --------
@@ -258,11 +260,11 @@ def save_model(model, feature_cols, model_dir="models"):
     os.makedirs(model_dir, exist_ok=True)
     
     # Save model
-    model_path = os.path.join(model_dir, "ranking_model.json")
+    model_path = os.path.join(model_dir, f"{model_name}.json")
     model.save_model(model_path)
     
     # Save feature columns
-    feature_path = os.path.join(model_dir, "feature_cols.txt")
+    feature_path = os.path.join(model_dir, f"{model_name}_feature_cols.txt")
     with open(feature_path, "w") as f:
         for col in feature_cols:
             f.write(f"{col}\n")
@@ -273,7 +275,7 @@ def save_model(model, feature_cols, model_dir="models"):
     return model_path
 
 
-def load_model(model_dir="models"):
+def load_model(model_dir="models", model_name="ranking_model"):
     """
     Load a trained model and feature columns.
     
@@ -281,6 +283,8 @@ def load_model(model_dir="models"):
     -----------
     model_dir : str, optional
         Directory containing the model
+    model_name : str, optional
+        Base name for the model file (without extension)
         
     Returns:
     --------
@@ -288,12 +292,12 @@ def load_model(model_dir="models"):
         (xgboost.Booster, list) containing the model and feature columns
     """
     # Load model
-    model_path = os.path.join(model_dir, "ranking_model.json")
+    model_path = os.path.join(model_dir, f"{model_name}.json")
     model = xgb.Booster()
     model.load_model(model_path)
     
     # Load feature columns
-    feature_path = os.path.join(model_dir, "feature_cols.txt")
+    feature_path = os.path.join(model_dir, f"{model_name}_feature_cols.txt")
     with open(feature_path, "r") as f:
         feature_cols = [line.strip() for line in f.readlines()]
     
