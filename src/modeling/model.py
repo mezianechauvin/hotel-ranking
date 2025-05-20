@@ -221,7 +221,7 @@ def predict_rankings(model, features_df, feature_cols=None):
     
     # Prepare data
     X = features_df[feature_cols]
-    dmatrix = xgb.DMatrix(X)
+    dmatrix = xgb.DMatrix(np.array(X))
     
     # Predict scores
     scores = model.predict(dmatrix)
