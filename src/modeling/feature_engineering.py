@@ -35,10 +35,14 @@ def prepare_features(interactions_df, venues_df, users_df, seasonal_df, weather_
     features_df = interactions_df.copy()
     
     # Merge venue features
+    venue_columns = (
+        ["venue_id", "venue_type", "star_rating", "day_pass_price"] 
+        + [col for col in venues_df.columns if col.startswith("vibe_")]
+        + [col for col in venues_df.columns if col.startswith("venue_type_")]
+    )
     features_df = pd.merge(
         features_df,
-        venues_df[["venue_id", "venue_type", "star_rating", "day_pass_price", 
-                 "vibe", "avg_rating", "review_count"]],
+        venues_df[venue_columns],
         on="venue_id",
         how="left"
     )
@@ -46,7 +50,7 @@ def prepare_features(interactions_df, venues_df, users_df, seasonal_df, weather_
     # Merge user features (use preprocessed user data if available)
     if "prefers_pool" in users_df.columns:
         # Already preprocessed
-        user_cols = ["user_id"] + [col for col in users_df.columns 
+        user_cols = ["user_id", "home_city"] + [col for col in users_df.columns 
                                  if col.startswith("prefers_") or 
                                  col in ["price_sensitivity", "max_travel_distance"]]
         features_df = pd.merge(
@@ -60,7 +64,7 @@ def prepare_features(interactions_df, venues_df, users_df, seasonal_df, weather_
         from src.data_generation.user_data import preprocess_user_data
         processed_users_df = preprocess_user_data(users_df)
         
-        user_cols = ["user_id"] + [col for col in processed_users_df.columns 
+        user_cols = ["user_id", "home_city"] + [col for col in processed_users_df.columns 
                                  if col.startswith("prefers_") or 
                                  col in ["price_sensitivity", "max_travel_distance"]]
         features_df = pd.merge(
@@ -73,30 +77,30 @@ def prepare_features(interactions_df, venues_df, users_df, seasonal_df, weather_
     # Merge seasonal data
     features_df = pd.merge(
         features_df,
-        seasonal_df[["venue_id", "season", "seasonal_price", "demand_factor"]],
+        seasonal_df[["venue_id", "season", "demand_factor"]], #seasonal_price
         on=["venue_id", "season"],
         how="left"
     )
     
-    # Add weather data if provided
-    if weather_df is not None:
-        # Extract date from booking_date
-        features_df["booking_date_only"] = pd.to_datetime(
-            features_df["booking_date"]
-        ).dt.floor("D")
+    # # Add weather data if provided
+    # if weather_df is not None:
+    #     # Extract date from booking_date
+    #     features_df["booking_date_only"] = pd.to_datetime(
+    #         features_df["booking_date"]
+    #     ).dt.floor("D")
         
-        # Merge weather data
-        weather_cols = ["city", "date", "temperature", "is_rainy", "weather_quality"]
-        features_df = pd.merge(
-            features_df,
-            weather_df[weather_cols],
-            left_on=["home_city", "booking_date_only"],
-            right_on=["city", "date"],
-            how="left"
-        )
+    #     # Merge weather data
+    #     weather_cols = ["city", "date", "temperature", "is_rainy", "weather_quality"]
+    #     features_df = pd.merge(
+    #         features_df,
+    #         weather_df[weather_cols],
+    #         left_on=["home_city", "booking_date_only"],
+    #         right_on=["city", "date"],
+    #         how="left"
+    #     )
         
-        # Drop temporary and redundant columns
-        features_df = features_df.drop(columns=["booking_date_only", "city", "date"])
+        # # Drop temporary and redundant columns
+        # features_df = features_df.drop(columns=["booking_date_only", "city", "date"])
     
     # Create position features
     features_df["is_top_position"] = (features_df["position"] == 1).astype(int)
@@ -149,20 +153,20 @@ def prepare_features(interactions_df, venues_df, users_df, seasonal_df, weather_
                     (features_df["weather_quality"] == "bad")
                 ).astype(int)
     
-    # Create vibe-user preference match features
-    vibe_options = ["family_friendly", "serene", "luxe", "trendy"]
-    for vibe in vibe_options:
-        vibe_pref_col = f"prefers_{vibe}"
-        if vibe_pref_col in features_df.columns:
-            features_df[f"{vibe}_match"] = (
-                (features_df["vibe"] == vibe) & 
-                (features_df[vibe_pref_col] == 1)
-            ).astype(int)
+    # # Create vibe-user preference match features
+    # vibe_options = ["family_friendly", "serene", "luxe", "trendy"]
+    # for vibe in vibe_options:
+    #     vibe_pref_col = f"prefers_{vibe}"
+    #     if vibe_pref_col in features_df.columns:
+    #         features_df[f"{vibe}_match"] = (
+    #             (features_df["vibe"] == vibe) & 
+    #             (features_df[vibe_pref_col] == 1)
+    #         ).astype(int)
     
     # Note: Categorical features are now one-hot encoded during data generation
     
     # Fill missing values
-    features_df = features_df.fillna(0)
+    # features_df = features_df.fillna(0)
     
     return features_df
 

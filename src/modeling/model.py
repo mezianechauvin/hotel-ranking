@@ -53,6 +53,7 @@ def train_ranking_model(features_df, group_col="session_id", target_col="clicked
     
     # Select features
     feature_cols = select_features(features_df)
+    features_df = features_df.sort_values(by=group_col)
     
     # Prepare data
     X = features_df[feature_cols]
@@ -70,12 +71,12 @@ def train_ranking_model(features_df, group_col="session_id", target_col="clicked
         break  # Just use the first fold for simplicity
     
     # Prepare DMatrix for XGBoost
-    dtrain = xgb.DMatrix(X_train, label=y_train)
-    dtest = xgb.DMatrix(X_test, label=y_test)
+    dtrain = xgb.DMatrix(np.array(X_train), label=np.array(y_train))
+    dtest = xgb.DMatrix(np.array(X_test), label=np.array(y_test))
     
     # Group data by session_id for ranking
-    train_groups = X_train.reset_index().groupby(groups_train).size().values
-    test_groups = X_test.reset_index().groupby(groups_test).size().values
+    train_groups = groups_train.value_counts().to_list()
+    test_groups = groups_test.value_counts().to_list()
     
     dtrain.set_group(train_groups)
     dtest.set_group(test_groups)
