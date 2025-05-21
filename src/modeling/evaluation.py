@@ -281,7 +281,8 @@ def plot_metrics_by_category(metrics_dict, category_name, metric_name, ax=None):
     return ax
 
 
-def generate_evaluation_report(metrics, results_df, output_dir="reports"):
+def generate_evaluation_report(metrics, results_df, output_dir="reports", 
+                             report_name="evaluation_report", plots_name="evaluation_plots"):
     """
     Generate an evaluation report with metrics and plots.
     
@@ -293,6 +294,10 @@ def generate_evaluation_report(metrics, results_df, output_dir="reports"):
         DataFrame containing predictions and labels
     output_dir : str, optional
         Directory to save the report
+    report_name : str, optional
+        Base name for the report file (without extension)
+    plots_name : str, optional
+        Base name for the plots file (without extension)
         
     Returns:
     --------
@@ -303,7 +308,7 @@ def generate_evaluation_report(metrics, results_df, output_dir="reports"):
     os.makedirs(output_dir, exist_ok=True)
     
     # Create report file
-    report_path = os.path.join(output_dir, "evaluation_report.txt")
+    report_path = os.path.join(output_dir, f"{report_name}.txt")
     with open(report_path, "w") as f:
         f.write("# Hotel Ranking Model Evaluation Report\n\n")
         
@@ -351,7 +356,7 @@ def generate_evaluation_report(metrics, results_df, output_dir="reports"):
     plt.tight_layout()
     
     # Save plots
-    plots_path = os.path.join(output_dir, "evaluation_plots.png")
+    plots_path = os.path.join(output_dir, f"{plots_name}.png")
     plt.savefig(plots_path)
     
     print(f"Evaluation report saved to {report_path}")

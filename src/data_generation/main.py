@@ -67,13 +67,14 @@ def generate_all_data(output_dir="data", n_venues=500, n_users=1000, n_interacti
     seasonal_df.to_csv(os.path.join(output_dir, "seasonal.csv"), index=False)
     print(f"Generated {len(seasonal_df)} seasonal records")
     
-    # Generate weather data
-    print("Generating weather data...")
+    # Generate weather data for 3 years
+    print("Generating weather data for 3 years...")
     cities = venues_df["city"].unique()
     current_year = datetime.now().year
+    start_year = current_year - 2  # Start 2 years ago
     weather_df = generate_weather_data(
         cities, 
-        start_date=f"{current_year}-01-01",
+        start_date=f"{start_year}-01-01",
         end_date=f"{current_year}-12-31",
         random_seed=random_seed
     )
@@ -84,24 +85,63 @@ def generate_all_data(output_dir="data", n_venues=500, n_users=1000, n_interacti
     print(f"Generating {n_interactions} interactions...")
     interactions_df = generate_interaction_data(
         venues_df, users_df, seasonal_df, weather_df,
-        n_interactions=n_interactions, random_seed=random_seed
+        n_interactions=n_interactions, random_seed=random_seed, start_date=f"{start_year}-01-01", end_date=f"{current_year}-12-31",
     )
     interactions_df.to_csv(os.path.join(output_dir, "interactions.csv"), index=False)
     print(f"Generated {len(interactions_df)} interactions")
     
-    # Create train/test split for interactions
-    print("Creating train/test split...")
+    # Create temporal train/test split for interactions
+    print("Creating temporal train/test split...")
+    # Convert timestamp to datetime if it's not already
+    if not pd.api.types.is_datetime64_dtype(interactions_df["timestamp"]):
+        interactions_df["timestamp"] = pd.to_datetime(interactions_df["timestamp"])
+    
     # Sort by timestamp to ensure temporal ordering
     interactions_df = interactions_df.sort_values("timestamp")
     
-    # Use 80% for training, 20% for testing
-    train_size = int(len(interactions_df) * 0.8)
-    train_df = interactions_df.iloc[:train_size]
-    test_df = interactions_df.iloc[train_size:]
+    # Extract year and month from timestamp
+    interactions_df["year"] = interactions_df["timestamp"].dt.year
+    interactions_df["month"] = interactions_df["timestamp"].dt.month
+    interactions_df["year_month"] = interactions_df["timestamp"].dt.strftime("%Y_%m")
     
-    train_df.to_csv(os.path.join(output_dir, "interactions_train.csv"), index=False)
-    test_df.to_csv(os.path.join(output_dir, "interactions_test.csv"), index=False)
-    print(f"Created train set with {len(train_df)} interactions and test set with {len(test_df)} interactions")
+    # Use the first 2 years for base training, last year for monthly evaluation
+    base_train_df = interactions_df[interactions_df["year"] < current_year]
+    eval_year_df = interactions_df[interactions_df["year"] == current_year]
+    
+    # Save the full dataset
+    interactions_df.to_csv(os.path.join(output_dir, "interactions_full.csv"), index=False)
+    
+    # Save the base training set (first 2 years)
+    base_train_df.to_csv(os.path.join(output_dir, "interactions_base_train.csv"), index=False)
+    
+    # Create monthly evaluation sets for the evaluation year
+    eval_months = sorted(eval_year_df["year_month"].unique())
+    
+    # For each month in the evaluation year
+    for i, year_month in enumerate(eval_months):
+        # Get data for this month (evaluation set)
+        month_eval_df = eval_year_df[eval_year_df["year_month"] == year_month]
+        
+        # Save this month's evaluation set
+        month_eval_df.to_csv(os.path.join(output_dir, f"interactions_eval_{year_month}.csv"), index=False)
+        
+        # Create training set: all data up to this month
+        if i == 0:
+            # For the first month, training set is just the base training set (first 2 years)
+            month_train_df = base_train_df.copy()
+        else:
+            # For subsequent months, include all previous months of the evaluation year
+            previous_months = eval_months[:i]
+            previous_months_df = eval_year_df[eval_year_df["year_month"].isin(previous_months)]
+            month_train_df = pd.concat([base_train_df, previous_months_df])
+        
+        # Save this month's training set
+        month_train_df.to_csv(os.path.join(output_dir, f"interactions_train_{year_month}.csv"), index=False)
+        
+        print(f"Month {year_month}: Created train set with {len(month_train_df)} interactions and eval set with {len(month_eval_df)} interactions")
+    
+    print(f"Generated data for 3 years ({interactions_df['year'].min()}-{interactions_df['year'].max()})")
+    print(f"Created {len(eval_months)} monthly evaluation sets for year {current_year}")
     
     # Return all generated data
     return {
@@ -111,8 +151,9 @@ def generate_all_data(output_dir="data", n_venues=500, n_users=1000, n_interacti
         "seasonal": seasonal_df,
         "weather": weather_df,
         "interactions": interactions_df,
-        "interactions_train": train_df,
-        "interactions_test": test_df
+        "interactions_base_train": base_train_df,
+        "interactions_eval_year": eval_year_df,
+        "eval_months": eval_months
     }
 
 

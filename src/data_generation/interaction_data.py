@@ -15,7 +15,7 @@ from src.utils.distance import calculate_distance
 
 
 def generate_interaction_data(venues_df, users_df, seasonal_df, weather_df=None, 
-                             n_interactions=50000, random_seed=None):
+                             n_interactions=50000, random_seed=None, start_date=f"2023-01-01", end_date=f"2025-12-31",):
     """
     Generate synthetic user-venue interaction data.
     
@@ -45,8 +45,8 @@ def generate_interaction_data(venues_df, users_df, seasonal_df, weather_df=None,
     interactions = []
     
     # Create timestamps over a 1-year period with hourly granularity
-    start_date = pd.Timestamp('2024-01-01')
-    end_date = pd.Timestamp('2024-12-31')
+    start_date = pd.Timestamp(start_date)
+    end_date = pd.Timestamp(end_date)
     
     # Generate simple weather data if not provided
     if weather_df is None:

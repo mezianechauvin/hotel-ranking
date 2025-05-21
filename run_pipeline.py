@@ -35,9 +35,17 @@ def run_model_training(args):
     if args.sample:
         data_dir = os.path.join(args.data_dir, "sample")
     
-    cmd = (f"python -m src.modeling.train --data-dir {data_dir} "
-           f"--model-dir {args.model_dir} --report-dir {args.report_dir} "
-           f"--model-type {args.model_type} --seed {args.seed}")
+    if args.monthly_eval:
+        # Train and evaluate for each month
+        print("\n=== Running Monthly Evaluation ===\n")
+        cmd = (f"python -m src.modeling.train --data-dir {data_dir} "
+               f"--model-dir {args.model_dir} --report-dir {args.report_dir} "
+               f"--model-type {args.model_type} --seed {args.seed} --monthly-eval")
+    else:
+        # Standard training and evaluation
+        cmd = (f"python -m src.modeling.train --data-dir {data_dir} "
+               f"--model-dir {args.model_dir} --report-dir {args.report_dir} "
+               f"--model-type {args.model_type} --seed {args.seed}")
     
     print(f"Executing: {cmd}")
     os.system(cmd)
@@ -57,6 +65,8 @@ def main():
     parser.add_argument("--report-dir", type=str, default="reports", help="Directory to save the evaluation report")
     parser.add_argument("--model-type", type=str, default="pointwise", choices=["pointwise", "pairwise"], 
                       help="Type of model to train")
+    parser.add_argument("--monthly-eval", action="store_true", 
+                      help="Run monthly evaluation (train and evaluate for each month)")
     
     # General arguments
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")

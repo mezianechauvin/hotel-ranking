@@ -204,8 +204,7 @@ def select_features(features_df, include_user_features=True):
         "hours_until_booking",
         
         # Derived features
-        "price_ratio", "price_sensitivity_effect",
-        "vibe_match", "amenity_match_count",
+        "price_ratio", "price_sensitivity_effect", "amenity_match_count",
         "cold_day", "hot_day"
     ]
     
