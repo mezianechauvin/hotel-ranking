@@ -102,11 +102,6 @@ def prepare_features(interactions_df, venues_df, users_df, seasonal_df, weather_
         # # Drop temporary and redundant columns
         # features_df = features_df.drop(columns=["booking_date_only", "city", "date"])
     
-    # Create position features
-    features_df["is_top_position"] = (features_df["position"] == 1).astype(int)
-    features_df["is_top_3"] = (features_df["position"] <= 3).astype(int)
-    features_df["position_score"] = 1 / np.log2(features_df["position"] + 1)  # DCG-like position score
-    
     # Create price features
     features_df["price_ratio"] = features_df["seasonal_price"] / features_df["day_pass_price"]
     features_df["price_sensitivity_effect"] = features_df["seasonal_price"] * features_df["price_sensitivity"] / 100
@@ -195,9 +190,6 @@ def select_features(features_df, include_user_features=True):
         # Seasonal features
         "seasonal_price", "demand_factor",
         
-        # Position features
-        "position", "is_top_position", "is_top_3", "position_score",
-        
         # Context features
         "is_weekend", "distance_km", "distance_score",
         "temperature", "is_rainy",
@@ -241,7 +233,10 @@ def select_features(features_df, include_user_features=True):
                    user_features)
     
     # Filter to only include columns that exist in the DataFrame
-    selected_features = [col for col in all_features if col in features_df.columns]
+    # and exclude position features
+    position_features = ["position", "is_top_position", "is_top_3", "position_score"]
+    selected_features = [col for col in all_features 
+                       if col in features_df.columns and col not in position_features]
     
     return selected_features
 
