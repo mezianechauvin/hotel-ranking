@@ -161,8 +161,8 @@ def train_pairwise_ranking_model(features_df, group_col="session_id", target_col
         break  # Just use the first fold for simplicity
     
     # Prepare DMatrix for XGBoost
-    dtrain = xgb.DMatrix(X_train, label=y_train)
-    dtest = xgb.DMatrix(X_test, label=y_test)
+    dtrain = xgb.DMatrix(np.array(X_train), label=y_train)
+    dtest = xgb.DMatrix(np.array(X_test), label=y_test)
     
     # Group data by session_id for ranking
     train_groups = X_train.reset_index().groupby(groups_train).size().values
@@ -221,7 +221,7 @@ def predict_rankings(model, features_df, feature_cols=None):
     
     # Prepare data
     X = features_df[feature_cols]
-    dmatrix = xgb.DMatrix(X)
+    dmatrix = xgb.DMatrix(np.array(X))
     
     # Predict scores
     scores = model.predict(dmatrix)

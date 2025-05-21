@@ -85,7 +85,7 @@ def generate_all_data(output_dir="data", n_venues=500, n_users=1000, n_interacti
     print(f"Generating {n_interactions} interactions...")
     interactions_df = generate_interaction_data(
         venues_df, users_df, seasonal_df, weather_df,
-        n_interactions=n_interactions, random_seed=random_seed
+        n_interactions=n_interactions, random_seed=random_seed, start_date=f"{start_year}-01-01", end_date=f"{current_year}-12-31",
     )
     interactions_df.to_csv(os.path.join(output_dir, "interactions.csv"), index=False)
     print(f"Generated {len(interactions_df)} interactions")

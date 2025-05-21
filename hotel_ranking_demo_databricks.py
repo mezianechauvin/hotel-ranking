@@ -1,9 +1,9 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Hotel Ranking System Demo
-# MAGIC 
+# MAGIC
 # MAGIC This notebook demonstrates the hotel ranking system for day-access amenities. It shows how to:
-# MAGIC 
+# MAGIC
 # MAGIC 1. Generate synthetic data
 # MAGIC 2. Explore the data
 # MAGIC 3. Train a ranking model
@@ -20,7 +20,7 @@
 
 # MAGIC %md
 # MAGIC ## Setup
-# MAGIC 
+# MAGIC
 # MAGIC First, let's import the necessary modules and set up the environment.
 
 # COMMAND ----------
@@ -42,7 +42,7 @@ np.random.seed(42)
 
 # MAGIC %md
 # MAGIC ## 1. Generate Synthetic Data
-# MAGIC 
+# MAGIC
 # MAGIC We'll generate a dataset spanning 3 years, with the latest year used for monthly evaluation.
 
 # COMMAND ----------
@@ -104,14 +104,14 @@ else:
 
 # MAGIC %md
 # MAGIC ## 2. Explore the Data
-# MAGIC 
+# MAGIC
 # MAGIC Let's explore the generated data to understand its structure and characteristics.
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ### 2.1 Venue Data
-# MAGIC 
+# MAGIC
 # MAGIC First, let's look at the venue data.
 
 # COMMAND ----------
@@ -158,7 +158,7 @@ display(plt.gcf())
 
 # MAGIC %md
 # MAGIC ### 2.2 Seasonal Data
-# MAGIC 
+# MAGIC
 # MAGIC Let's examine how amenity availability and pricing change by season.
 
 # COMMAND ----------
@@ -201,7 +201,7 @@ display(plt.gcf())
 
 # MAGIC %md
 # MAGIC ### 2.3 User Interaction Data
-# MAGIC 
+# MAGIC
 # MAGIC Now let's look at the user interaction data.
 
 # COMMAND ----------
@@ -284,7 +284,7 @@ display(plt.gcf())
 
 # MAGIC %md
 # MAGIC ### 2.4 Temporal Data Analysis
-# MAGIC 
+# MAGIC
 # MAGIC Let's analyze how the data is distributed across the 3-year period.
 
 # COMMAND ----------
@@ -321,7 +321,7 @@ if 'year' in data['interactions'].columns and 'month' in data['interactions'].co
 
 # MAGIC %md
 # MAGIC ## 3. Train a Ranking Model
-# MAGIC 
+# MAGIC
 # MAGIC Now let's train a ranking model using the generated data.
 
 # COMMAND ----------
@@ -357,7 +357,7 @@ display(train_features_df.dtypes)
 
 # MAGIC %md
 # MAGIC ## 4. Evaluate the Model
-# MAGIC 
+# MAGIC
 # MAGIC Let's evaluate the trained model on the evaluation data.
 
 # COMMAND ----------
@@ -448,7 +448,7 @@ display(plt.gcf())
 
 # MAGIC %md
 # MAGIC ## 5. Use the Model for Ranking Venues
-# MAGIC 
+# MAGIC
 # MAGIC Now let's use the trained model to rank venues for a specific user and context.
 
 # COMMAND ----------
@@ -535,7 +535,7 @@ display(plt.gcf())
 
 # MAGIC %md
 # MAGIC ## 6. Monthly Evaluation
-# MAGIC 
+# MAGIC
 # MAGIC Now let's demonstrate the monthly evaluation approach, where we train and evaluate models for each month of the evaluation year.
 
 # COMMAND ----------
@@ -548,7 +548,7 @@ if 'eval_months' in data and data['eval_months']:
     
     # We'll demonstrate the monthly evaluation process by training and evaluating for each month
     # Note: This can be time-consuming, so we'll just show the process for a few months
-    sample_months = data['eval_months'][:3] if len(data['eval_months']) > 3 else data['eval_months']
+    sample_months = data['eval_months'] if len(data['eval_months']) > 3 else data['eval_months']
     
     # Store results for each month
     monthly_results = {}
@@ -612,7 +612,7 @@ else:
 
 # MAGIC %md
 # MAGIC ### 6.1 Compare Performance Across Months
-# MAGIC 
+# MAGIC
 # MAGIC Let's compare the model performance across different months.
 
 # COMMAND ----------
@@ -678,7 +678,7 @@ else:
 
 # MAGIC %md
 # MAGIC ### 6.2 Feature Importance Across Months
-# MAGIC 
+# MAGIC
 # MAGIC Let's compare how feature importance changes across different months.
 
 # COMMAND ----------
@@ -715,7 +715,7 @@ else:
 
 # MAGIC %md
 # MAGIC ## 7. Visualize Venue Locations
-# MAGIC 
+# MAGIC
 # MAGIC Let's visualize the venue locations for a specific city.
 
 # COMMAND ----------
@@ -735,7 +735,7 @@ display(plt.gcf())
 
 # MAGIC %md
 # MAGIC ## 8. Seasonal Availability Analysis
-# MAGIC 
+# MAGIC
 # MAGIC Let's analyze how amenity availability changes by season.
 
 # COMMAND ----------
@@ -762,9 +762,9 @@ display(plt.gcf())
 
 # MAGIC %md
 # MAGIC ## Conclusion
-# MAGIC 
+# MAGIC
 # MAGIC In this notebook, we've demonstrated the hotel ranking system for day-access amenities. We've shown how to:
-# MAGIC 
+# MAGIC
 # MAGIC 1. Generate synthetic data spanning 3 years
 # MAGIC 2. Explore the data to understand its characteristics
 # MAGIC 3. Train a ranking model using XGBoost
@@ -772,7 +772,7 @@ display(plt.gcf())
 # MAGIC 5. Use the model to rank venues for a specific user and context
 # MAGIC 6. Perform monthly evaluation to track model performance over time
 # MAGIC 7. Visualize venue locations and seasonal availability
-# MAGIC 
+# MAGIC
 # MAGIC The model takes into account various factors including:
 # MAGIC - User preferences and history
 # MAGIC - Venue attributes and amenities
@@ -780,5 +780,9 @@ display(plt.gcf())
 # MAGIC - Weather conditions
 # MAGIC - Location proximity
 # MAGIC - Time slot availability
-# MAGIC 
+# MAGIC
 # MAGIC This approach provides a personalized ranking of venues based on the specific context and user preferences, and the monthly evaluation approach allows us to track how model performance changes over time.
+
+# COMMAND ----------
+
+
