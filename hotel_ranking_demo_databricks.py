@@ -495,7 +495,7 @@ ranked_venues = ranked_venues.sort_values('predicted_score', ascending=False)
 
 # Display ranked venues
 display_cols = ['venue_id', 'clicked', 'predicted_score', 'predicted_rank',
-               'venue_type', 'star_rating', 'seasonal_price', 'vibe',
+               'venue_type', 'star_rating', 'seasonal_price',
                'distance_km', 'time_slot']
 
 display(ranked_venues[display_cols])
